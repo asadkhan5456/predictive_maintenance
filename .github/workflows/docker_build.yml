@@ -1,0 +1,29 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Docker Image
+      run: docker build -t predictive-maintenance-api .
+
+    - name: Run container and test API
+      run: |
+        docker run -d --name pm_api -p 8000:8000 predictive-maintenance-api
+        # Wait a few seconds for the container to start
+        sleep 10
+        # Test the root endpoint; this will fail the job if the API is not responding
+        curl --fail http://localhost:8000/ || exit 1

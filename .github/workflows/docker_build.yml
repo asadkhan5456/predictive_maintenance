@@ -23,11 +23,12 @@ jobs:
       run: |
         echo "VARIABLE is $VARIABLE"
         docker build -t predictive-maintenance-api .
-
+        
     - name: Run container and test API
       run: |
         docker run -d --name pm_api -p 8000:8000 predictive-maintenance-api
-        # Wait a few seconds for the container to start
         sleep 10
-        # Test the root endpoint; this will fail the job if the API is not responding
+        # Show logs if the container isn't up
+        docker logs pm_api || true
+        # Attempt to curl the API
         curl --fail http://localhost:8000/ || exit 1
